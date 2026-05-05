@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  events        Event[]   @relation("OrganizerEvents")
+  orders        Order[]
+  sessions      Session[]
+  accounts      Account[]
+
+  @@map("user")
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?  @db.VarChar(1000)
+  location      String?
+  createdAt     DateTime @default(now())
+  imageUrl      String
+  startDateTime DateTime @default(now())
+  endDateTime   DateTime @default(now())
+  price         String?
+  isFree        Boolean  @default(false)
+  url           String?
+  
+  // Category Relation
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  
+  // Organizer Relation (Correctly mapped to User.events)
+  organizerId   String
+  organizer     User     @relation("OrganizerEvents", fields: [organizerId], references: [id], onDelete: Cascade)
+
+  orders        Order[]
+
+  @@map("event")
+}
+
+model Category {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  events Event[]
+
+  @@map("category")
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  stripeId    String   @unique
+  totalAmount String?
+
+  // Relation to Event
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id])
+
+  // Relation to User (Buyer)
+  buyerId     String
+  buyer       User     @relation(fields: [buyerId], references: [id])
+
+  @@map("order")
+}
+
+// --- Better Auth Models (Keep these as they are required by the library) ---
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}

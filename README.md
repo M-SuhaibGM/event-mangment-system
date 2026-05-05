@@ -1,0 +1,22 @@
+#NEXT
+NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+
+
+#UPLOADTHING
+UPLOADTHING_SECRET=''
+UPLOADTHING_APP_ID=''
+
+#STRIPE
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+BETTER_AUTH_URL=http://localhost:3000 # Your app's base URL
+DATABASE_URL="mysql://user:passowd@localhost:3306/events-system"
+DATABASE_USER="user"
+DATABASE_PASSWORD=""
+DATABASE_NAME="events-system"
+DATABASE_HOST="localhost"
+DATABASE_PORT=3306
+NEXT_PUBLIC_APP_URL=http://localhost:3000
