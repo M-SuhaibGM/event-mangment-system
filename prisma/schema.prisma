@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -21,11 +16,14 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
-  // Relations
   events        Event[]   @relation("OrganizerEvents")
   orders        Order[]
   sessions      Session[]
   accounts      Account[]
+
+  // Better Auth Stripe relations
+  stripeCustomer  StripeCustomer?
+  subscriptions   Subscription[]
 
   @@map("user")
 }
@@ -42,12 +40,11 @@ model Event {
   price         String?
   isFree        Boolean  @default(false)
   url           String?
-  
-  // Category Relation
+  stripePriceId String?  // ← ADD THIS
+
   categoryId    String
   category      Category @relation(fields: [categoryId], references: [id])
-  
-  // Organizer Relation (Correctly mapped to User.events)
+
   organizerId   String
   organizer     User     @relation("OrganizerEvents", fields: [organizerId], references: [id], onDelete: Cascade)
 
@@ -70,18 +67,46 @@ model Order {
   stripeId    String   @unique
   totalAmount String?
 
-  // Relation to Event
   eventId     String
   event       Event    @relation(fields: [eventId], references: [id])
 
-  // Relation to User (Buyer)
   buyerId     String
   buyer       User     @relation(fields: [buyerId], references: [id])
 
   @@map("order")
 }
 
-// --- Better Auth Models (Keep these as they are required by the library) ---
+// --- Better Auth Stripe Tables ---
+
+model StripeCustomer {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeCustomerId String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("stripe_customer")
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSubscriptionId String    @unique
+  status               String
+  planId               String?
+  priceId              String?
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@map("subscription")
+}
+
+// --- Better Auth Core Models ---
 
 model Session {
   id        String   @id

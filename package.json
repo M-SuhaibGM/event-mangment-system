@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@better-auth/stripe": "^1.6.9",
     "@hookform/resolvers": "^3.3.2",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
@@ -39,12 +40,12 @@
     "react-dom": "^18",
     "react-hook-form": "^7.49.0",
     "sonner": "^2.0.7",
-    "stripe": "^14.8.0",
+    "stripe": "^22.1.0",
     "svix": "^1.15.0",
     "tailwind-merge": "^2.1.0",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^6.0.4",
-    "zod": "^3.22.4"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^20.19.39",

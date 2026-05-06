@@ -4,12 +4,12 @@ import Link from 'next/link'
 import React from 'react'
 import { Button } from '../ui/button'
 import Checkout from './Checkout'
-import { authClient } from "@/lib/auth-client" // Ensure you have a client-side auth instance
+import { useSession } from "@/lib/auth-client";
 
 // Update prop type to match your Prisma/MySQL event structure
 const CheckoutButton = ({ event }: { event: any }) => {
   // 1. Get session using the Better Auth client hook
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = useSession();
 
   const userId = session?.user?.id as string;
   const hasEventFinished = new Date(event.endDateTime) < new Date();

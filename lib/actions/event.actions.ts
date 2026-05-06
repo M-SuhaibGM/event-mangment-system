@@ -1,8 +1,9 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { prisma } from '@/lib/prisma' // Ensure you have a prisma client instance here
+import { prisma } from '@/lib/prisma'
 import { handleError } from '@/lib/utils'
+import { createStripePrice } from '@/lib/actions/checkout.actions' // ← add this import
 
 import {
   CreateEventParams,
@@ -13,24 +14,34 @@ import {
   GetRelatedEventsByCategoryParams,
 } from '@/types'
 
-// Helper to include related data (Replaces Mongoose .populate)
 const eventInclude = {
   category: {
     select: { id: true, name: true }
   },
   organizer: {
-    select: { id: true, name: true, image: true } // Better Auth uses 'image' instead of 'photo'
+    select: { id: true, name: true, image: true }
   }
 }
 
 // CREATE
 export async function createEvent({ userId, event, path }: CreateEventParams) {
   try {
+    let stripePriceId: string | undefined;
+
+    // ← Generate Stripe Price only for paid events
+    if (!event.isFree && event.price) {
+      stripePriceId = await createStripePrice({
+        eventTitle: event.title,
+        price: event.price,
+      });
+    }
+
     const newEvent = await prisma.event.create({
       data: {
         ...event,
         categoryId: event.categoryId,
         organizerId: userId,
+        stripePriceId, // ← save it to DB
       }
     })
 
@@ -40,7 +51,6 @@ export async function createEvent({ userId, event, path }: CreateEventParams) {
     handleError(error)
   }
 }
-
 // GET ONE EVENT BY ID
 export async function getEventById(eventId: string) {
   try {
@@ -144,9 +154,9 @@ export async function getEventsByUser({ userId, limit = 6, page }: GetEventsByUs
 
     const eventsCount = await prisma.event.count({ where })
 
-    return { 
-      data: events, 
-      totalPages: Math.ceil(eventsCount / limit) 
+    return {
+      data: events,
+      totalPages: Math.ceil(eventsCount / limit)
     }
   } catch (error) {
     handleError(error)
@@ -179,9 +189,9 @@ export async function getRelatedEventsByCategory({
 
     const eventsCount = await prisma.event.count({ where })
 
-    return { 
-      data: events, 
-      totalPages: Math.ceil(eventsCount / limit) 
+    return {
+      data: events,
+      totalPages: Math.ceil(eventsCount / limit)
     }
   } catch (error) {
     handleError(error)
