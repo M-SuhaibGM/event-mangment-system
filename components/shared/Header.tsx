@@ -36,11 +36,11 @@ const Header = () => {
     <header className="w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
       <div className="wrapper flex items-center justify-between">
         <Link href="/" className="w-36">
-          <Image 
-            src="/assets/images/logo.svg" 
-            width={128} 
+          <Image
+            src="/assets/images/logo.svg"
+            width={128}
             height={38}
-            alt="Evently logo" 
+            alt="Evently logo"
           />
         </Link>
 
@@ -58,9 +58,9 @@ const Header = () => {
               <Popover>
                 <PopoverTrigger asChild>
                   <Avatar className="cursor-pointer border-2 border-transparent hover:border-blue-500 transition-all shadow-sm">
-                    <AvatarImage src={session.user.image || ""} alt={session.user.name} />
+                    <AvatarImage src={session?.user.image || ""} alt={session?.user.name} />
                     <AvatarFallback className="bg-blue-100 text-blue-700 font-medium">
-                      {session.user.name?.charAt(0).toUpperCase() || <User size={18} />}
+                      {session?.user.name?.charAt(0).toUpperCase() || <User size={18} />}
                     </AvatarFallback>
                   </Avatar>
                 </PopoverTrigger>
@@ -71,9 +71,9 @@ const Header = () => {
                       <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
                     </div>
                     <hr className="-mx-2 border-slate-100" />
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" 
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={handleSignOut}
                     >
                       <LogOut className="mr-2 h-4 w-4" />

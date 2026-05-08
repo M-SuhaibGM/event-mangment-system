@@ -68,10 +68,10 @@ model Order {
   totalAmount String?
 
   eventId     String
-  event       Event    @relation(fields: [eventId], references: [id])
+  event       Event    @relation(fields: [eventId], references: [id] ,onDelete: Cascade)
 
   buyerId     String
-  buyer       User     @relation(fields: [buyerId], references: [id])
+  buyer       User     @relation(fields: [buyerId], references: [id] ,onDelete: Cascade)
 
   @@map("order")
 }
@@ -107,47 +107,47 @@ model Subscription {
 }
 
 // --- Better Auth Core Models ---
-
 model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String   @unique
-  createdAt DateTime
-  updatedAt DateTime
-  ipAddress String?
-  userAgent String?
+  id        String   @id @default(cuid())
   userId    String
+  token     String   @unique @db.VarChar(512) // FIXED: Better Auth tokens can exceed 191 chars
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?  @db.Text // FIXED: User agents are often very long
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("session")
 }
 
 model Account {
-  id                    String    @id
+  id                    String    @id @default(cuid())
+  userId                String
   accountId             String
   providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?   @db.Text
-  refreshToken          String?   @db.Text
-  idToken               String?   @db.Text
+  accessToken           String?   @db.Text // FIXED: Long OAuth tokens
+  refreshToken          String?   @db.Text // FIXED: Long OAuth tokens
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime
-  updatedAt             DateTime
+  scope                 String?   @db.Text // FIXED: Scopes can be long strings
+  idToken               String?   @db.Text // FIXED: JWTs are very long
+  password              String?   @db.Text // RECOMMENDED: Future-proof hashes
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("account")
 }
 
+
 model Verification {
-  id         String    @id
+  id         String    @id @default(cuid())
   identifier String
-  value      String
+  value      String    @db.Text // ALREADY FIXED: Good job
   expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 
   @@map("verification")
 }
